@@ -7,6 +7,11 @@ on:
       - reopened
       - synchronize
 
+# This permissions block grants the GITHUB_TOKEN
+# the necessary write access for pull requests.
+permissions:
+  pull-requests: write
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
