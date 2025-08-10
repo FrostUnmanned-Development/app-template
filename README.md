@@ -38,11 +38,13 @@ Our IDP uses a Git-based workflow with automated deployments.
 **Visual Flow:**
 ```mermaid
 graph TD
-    A[New Pull Request] --> B{GitHub Action Trigger}
-    B --> C[Deploy to Sandbox Environment]
-    C --> D[Comment on PR with URL]
-    E[PR Closed or Merged] --> F[Cleanup Sandbox Environment]
-
+    A[New Pull Request] --> B[CI Workflow Runs - ci.yml]
+    B --> C{CI Checks Pass?}
+    C -- No --> D[Pull Request Fails]
+    C -- Yes --> E[Deploy to Sandbox Environment]
+    E --> F[Comment on PR with URL]
+    G[PR Closed or Merged] --> H[Cleanup Sandbox Environment]
+```
 #### **Production Deployments (Red/Green)**
 Our production deployment strategy is designed for zero-downtime releases.
 
@@ -59,15 +61,21 @@ sequenceDiagram
     participant GitHub
     participant Platform-Ops
     
-    Developer->>GitHub: Merge PR into release branch
-    GitHub->>GitHub: Triggers deploy.yml
+    Developer->>GitHub: Pushes code to feature branch
+    GitHub->>GitHub: Triggers CI Workflow (ci.yml)
+    GitHub-->>Developer: CI Status (Pass/Fail)
+    GitHub->>GitHub: Triggers Sandbox Deployment (sandbox.yml)
+    GitHub-->>Developer: Comments with Sandbox URL on PR
+    Developer->>GitHub: Gets PR reviewed and approved
+    Developer->>GitHub: Merges PR into release branch
+    GitHub->>GitHub: Triggers Production Deployment (deploy.yml)
     GitHub->>GitHub: Deploys code to "Red" environment
     GitHub-->>Platform-Ops: Notifies of "Red" deployment success
     Platform-Ops->>Platform-Ops: Manually validates "Red" environment
     Platform-Ops->>GitHub: Manually triggers "The Switch" workflow
-    GitHub->>GitHub: Updates load balancer
+    GitHub->>GitHub: Updates routing/traffic switch
     GitHub-->>Developer: Traffic is now on new version
-
+```
 ### 4. Retiring a Service
 When a service is no longer needed, follow these steps to retire it properly:
 
