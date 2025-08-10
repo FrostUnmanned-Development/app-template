@@ -2,9 +2,12 @@ name: Red-Green Production Deployment
 
 on:
   # This triggers the 'Green' deployment on merges to the main branch
+  # and the 'Red' deployment on merges to the release branch
   push:
     branches:
       - main
+      - release
+      
   # This allows a manual 'Red' deployment to be triggered via the UI
   workflow_dispatch:
     inputs:
@@ -19,8 +22,11 @@ on:
 
 jobs:
   deploy-to-red:
-    # This job runs when a manual 'red' deployment is triggered
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'red'
+    # This job runs when a push to 'release' branch occurs,
+    # or when a manual 'red' deployment is triggered.
+    if: |
+      github.ref == 'refs/heads/release' || 
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'red')
     runs-on: ubuntu-latest
     
     steps:
@@ -32,7 +38,9 @@ jobs:
         
   deploy-to-green:
     # This job runs on merges to 'main' or a manual 'green' deployment
-    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'green')
+    if: |
+      github.ref == 'refs/heads/main' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deployment_type == 'green')
     runs-on: ubuntu-latest
     
     steps:
