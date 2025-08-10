@@ -42,7 +42,7 @@ graph TD
     B --> C[Deploy to Sandbox Environment]
     C --> D[Comment on PR with URL]
     E[PR Closed or Merged] --> F[Cleanup Sandbox Environment]
-
+```
 #### **Production Deployments (Red/Green)**
 Our production deployment strategy is designed for zero-downtime releases.
 
@@ -67,7 +67,7 @@ sequenceDiagram
     Platform-Ops->>GitHub: Manually triggers "The Switch" workflow
     GitHub->>GitHub: Updates load balancer
     GitHub-->>Developer: Traffic is now on new version
-
+```
 ### 4. Retiring a Service
 When a service is no longer needed, follow these steps to retire it properly:
 
